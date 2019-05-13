@@ -1,0 +1,64 @@
+library(tidyverse)
+print("hello world!")
+#summary of descriptive stats for variables in data set
+summary(sc)
+#summarizing mean cost of attendance
+sc%>%summarize(mean_cost=mean(costt4_a,na.rm=TRUE))
+
+#Stretch Items
+
+#1 Calculate the average earnings for individuals at the most selective colleges, then compare that with individuals at the least selectiveive colleges in the dataset
+
+sc%>%filter(adm_rate<.1)%>%arrange(md_earn_wne_p6)
+sc%>%filter(adm_rate>.3)%>%arrange(md_earn_wne_p6)
+
+#2 find a way to determine whether colleges with very high SAT scores tend to be larger or smaller than colleges with low SAT scores
+
+sc%>%filter(sat_avg>1400)%>%summarize(mean_size_highSAT=mean(ugds,na.rm=TRUE))
+sc%>%filter(sat_avg<1100)%>%summarize(mean_size_lowSAT=mean(ugds,na.rm=TRUE))
+
+#3 plot the relationship between cost and debt.What do you see? Does this surprise you?
+#basic plot
+plot(sc$costt4_a, sc$debt_mdn, main = "Relationship Cost and Debt", xlab = "cost", ylab = "debt")
+#colored scatterplot
+ggplot(data = sc, mapping = aes(x = costt4_a, y = debt_mdn)) +
+  geom_point(alpha = 0.5, color = "red") +
+  geom_smooth(method = "lm")
+
+#I conducted a scatterplot using basic plot and ggplot on the variables cost for attendance and median debt of graduate. While I saw some variability, I did notice a positive correlation as the cost of the institution increased, so did the median of debt of the individual. This would make sense as the cost would increase, one might expect someone to incurr more debt if not able to pay to the cost.
+
+sc_nona <- sc[complete.cases(sc),]
+cost <- (sc_nona %>%select(costt4_a))
+debt <- (sc_nona %>%select(debt_mdn))
+# Note: must convert list to vector to use plot here. 
+plot(unlist(cost),unlist(debt))
+
+
+# 4 now provide separate plots for cost and debt by control of the institution
+#below, I have created 3 different scatterplots on the control of the institution (1,2,3) by debt and cost. 1=public, 2= private non-profit, 3=private for-profit
+#an increase in both cost and debt are noticed for public and private; yet in for profit institutions, there doesn't appear to be a relationship between cost and debt. 
+sc1<- sc%>%filter(control==1)
+ggplot(data = sc1, mapping = aes(x = costt4_a, y = debt_mdn)) +
+  geom_point(alpha = 0.5, color = "red") +
+  geom_smooth(method = "lm")
+
+sc2<- sc%>%filter(control==2)
+ggplot(data = sc2, mapping = aes(x = costt4_a, y = debt_mdn)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm")
+
+sc3<- sc%>%filter(control==3)
+ggplot(data = sc3, mapping = aes(x = costt4_a, y = debt_mdn)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm")
+
+
+```{r}
+control <- (sc_nona %>%select(control))
+
+plot(unlist(control),unlist(cost), type="p", col = "green")
+points(unlist(control),unlist(debt), type="p", col = "red")
+```
+
+#Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
